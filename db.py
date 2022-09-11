@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from parser import parse
 import sqlite3
 
@@ -20,6 +21,13 @@ def create_db():
         );
         '''
 
+        sqlite_init_query = f'''INSERT INTO news
+            (id,title,link) VALUES ('0', 'init','init');
+        '''
+
+        cursor.execute(sqlite_create_table_query)
+        cursor.execute(sqlite_init_query)
+
         cursor.close()
 
     except sqlite3.Error as error:
@@ -39,8 +47,10 @@ def insert_item(title, link):
 
         #TODO: read latest ID from DB here
 
+        id = getID() + 1
+
         sqlite_insert_query = f'''INSERT INTO news
-            (id,title,link) VALUES (1, '{title}','{link}')
+            (id,title,link) VALUES ({id}, '{title}','{link}')
         '''
 
         count = cursor.execute(sqlite_insert_query)
@@ -57,3 +67,29 @@ def insert_item(title, link):
             sqlite_connection.close()
             print('Connection closed by insert func!')
 
+
+# Getting latest ID in DB to make new note ID + 1
+def getID():
+    try:
+        sqlite_connection = sqlite3.connect('news.db')
+        cursor = sqlite_connection.cursor()
+
+        cursor.execute('SELECT * FROM news ORDER BY id DESC LIMIT 1;')
+
+        rows = cursor.fetchall()
+
+        num = -1
+    
+        for row in rows:
+            print(row)
+            num = row[0]
+        print(num)
+
+    except sqlite3.Error as error:
+            print('DB connection error', error)
+
+    finally:
+        if(sqlite_connection):
+            sqlite_connection.close()
+            print('Connection closed by getID func!')
+            return int(num)

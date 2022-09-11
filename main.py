@@ -1,6 +1,6 @@
 #Driver Code
 
-from db import create_db, insert_item
+from db import create_db, getID, insert_item
 from parser import parse
 from os.path import exists
 import pyfiglet
@@ -19,5 +19,8 @@ if __name__ == '__main__':
             insert_item(key, dict[key])
     else:
         create_db()
+        for key in dict.keys():
+            insert_item(key, dict[key])
 
+    getID()
     
